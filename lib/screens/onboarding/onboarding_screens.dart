@@ -3,6 +3,7 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:rive/rive.dart';
 import 'package:ui_flutter/components/animated_btn.dart';
 import 'package:ui_flutter/components/sign_in_form.dart';
@@ -15,6 +16,7 @@ class OnboardingScreen extends StatefulWidget {
 }
 
 class _OnboardingScreenState extends State<OnboardingScreen> {
+  bool _isSignInDialogShow = false;
   late RiveAnimationController _btnAnimationController;
 
   @override
@@ -81,55 +83,30 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     btnAnimationController: _btnAnimationController,
                     press: () {
                       _btnAnimationController.isActive = true;
-                      showGeneralDialog(
-                        //CLose the dialog when click outside
-                        barrierDismissible: true,
-                        barrierLabel: "Sign In",
-                        context: context,
-                        pageBuilder: (context, _, __) {
-                          return Center(
-                            child: Container(
-                              height: 620,
-                              margin: EdgeInsets.symmetric(horizontal: 16),
-                              padding: EdgeInsets.symmetric(vertical: 32),
-                              decoration: BoxDecoration(
-                                color: Colors.white.withOpacity(0.94),
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(16)),
-                              ),
-                              child: Scaffold(
-                                backgroundColor: Colors.transparent,
-                                body: Column(
-                                  children: [
-                                    Text(
-                                      'Sign In',
-                                      style: TextStyle(
-                                        fontSize: 34,
-                                        fontFamily: "Poppins",
-                                      ),
-                                    ),
-                                    Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                          vertical: 16),
-                                      child: Text(
-                                        "Access to 240+ hours of content. Learn design and code, by building real apps with Flutter and Swift.",
-                                        textAlign: TextAlign.center,
-                                      ),
-                                    ),
-                                    SignInForm(),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          );
+                      Future.delayed(
+                        Duration(milliseconds: 800),
+                        () {
+                          setState(() {
+                            _isSignInDialogShow = true;
+                          });
+                          customSigninDialog(context);
                         },
                       );
+                      // customSigninDialog(context);
                     },
                   ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 24),
-                    child: Text(
-                        "Purchase includes access to 30+ courses, 240+ premium tutorials, 120+ hours of videos, source files and certificates."),
+                  AnimatedPositioned(
+                    top: _isSignInDialogShow ? -50 : 0,
+                    duration: Duration(milliseconds: 500),
+                    height: MediaQuery.of(context).size.height ,
+                    width: MediaQuery.of(context).size.width,
+                    child: SafeArea(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 24),
+                        child: Text(
+                            "Purchase includes access to 30+ courses, 240+ premium tutorials, 120+ hours of videos, source files and certificates."),
+                      ),
+                    ),
                   ),
                 ],
               ),
@@ -137,6 +114,162 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           ),
         ],
       ),
+    );
+  }
+
+  Future<Object?> customSigninDialog(BuildContext context) {
+    return showGeneralDialog(
+      //CLose the dialog when click outside
+      barrierDismissible: true,
+      barrierLabel: "Sign In",
+      context: context,
+      transitionDuration: Duration(milliseconds: 500),
+      transitionBuilder: ((_, anim, __, child) {
+        Tween<Offset> tween;
+
+        // if (anim.status == AnimationStatus.forward) {
+        //   tween = Tween(begin: Offset(0, 1), end: Offset(0, 0));
+        // } else {
+        //   tween = Tween(begin: Offset(0, 0), end: Offset(0, 1));
+        // }
+
+        tween = Tween(begin: Offset(1, 0), end: Offset.zero);
+        return SlideTransition(
+          position: tween.animate(
+            CurvedAnimation(
+              parent: anim,
+              curve: Curves.easeInOut,
+            ),
+          ),
+          child: child,
+        );
+      }),
+      pageBuilder: (context, _, __) {
+        return Center(
+          child: Container(
+            height: 620,
+            margin: EdgeInsets.symmetric(horizontal: 16),
+            padding: EdgeInsets.symmetric(vertical: 32),
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.94),
+              borderRadius: BorderRadius.all(Radius.circular(16)),
+            ),
+            child: Scaffold(
+              backgroundColor: Colors.transparent,
+              body: Stack(
+                clipBehavior: Clip.none,
+                children: [
+                  Column(
+                    children: [
+                      Text(
+                        'Sign In',
+                        style: TextStyle(
+                          fontSize: 34,
+                          fontFamily: "Poppins",
+                        ),
+                      ),
+                      Padding(
+                        padding: EdgeInsets.symmetric(vertical: 16),
+                        child: Text(
+                          "Access to 240+ hours of content. Learn design and code, by building real apps with Flutter and Swift.",
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                      SignInForm(),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: Divider(),
+                            ),
+                            Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 16),
+                              child: Text(
+                                "OR",
+                                style: TextStyle(
+                                  color: Colors.black26,
+                                ),
+                              ),
+                            ),
+                            Expanded(
+                              child: Divider(),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 20.0),
+                        child: Text(
+                          "Sign with Email, Apple, Google",
+                          style: TextStyle(
+                            color: Colors.black54,
+                          ),
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.all(10.0),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            IconButton(
+                              padding: EdgeInsets.zero,
+                              onPressed: () {},
+                              icon: SvgPicture.asset(
+                                "assets/icons/email_box.svg",
+                                height: 64,
+                                width: 64,
+                              ),
+                            ),
+                            IconButton(
+                              padding: EdgeInsets.zero,
+                              onPressed: () {},
+                              icon: SvgPicture.asset(
+                                "assets/icons/apple_box.svg",
+                                height: 64,
+                                width: 64,
+                              ),
+                            ),
+                            IconButton(
+                              padding: EdgeInsets.zero,
+                              onPressed: () {},
+                              icon: SvgPicture.asset(
+                                "assets/icons/google_box.svg",
+                                height: 64,
+                                width: 64,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                  Positioned(
+                    left: 0,
+                    right: 0,
+                    bottom: -48,
+                    child: GestureDetector(
+                      onTap: () {
+                        barrierDismissible:
+                        true;
+                      },
+                      child: CircleAvatar(
+                        backgroundColor: Colors.white,
+                        radius: 16,
+                        child: Icon(
+                          Icons.close,
+                          color: Colors.black,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 }
