@@ -101,8 +101,6 @@ class _SignInFormState extends State<SignInForm> {
                 padding: const EdgeInsets.all(15.0),
                 child: ElevatedButton.icon(
                   onPressed: () {
-                    // Refactoring code
-                    
                     // before, loading icon
                     setState(() {
                       _isShowLoading = true;
@@ -115,7 +113,6 @@ class _SignInFormState extends State<SignInForm> {
                         Future.delayed(Duration(seconds: 2), () {
                           setState(() {
                             _isShowLoading = false;
-                            _isShowConfetti = true;
                           });
                           confetti.fire();
                         });
@@ -167,22 +164,18 @@ class _SignInFormState extends State<SignInForm> {
                 ),
               )
             : const SizedBox(),
-        _isShowConfetti
-            ? CustomPositioned(
-                child: Transform.scale(
-                scale: 6,
-                child: RiveAnimation.asset(
-                  "assets/RiveAssets/confetti.riv",
-                  onInit: (arboard) {
-                    StateMachineController controller =
-                        getRiverController(arboard);
+        CustomPositioned(
+            child: Transform.scale(
+          scale: 6,
+          child: RiveAnimation.asset(
+            "assets/RiveAssets/confetti.riv",
+            onInit: (arboard) {
+              StateMachineController controller = getRiverController(arboard);
 
-                    confetti =
-                        controller.findSMI("Trigger explosion") as SMITrigger;
-                  },
-                ),
-              ))
-            : const SizedBox(),
+              confetti = controller.findSMI("Trigger explosion") as SMITrigger;
+            },
+          ),
+        )),
       ],
     );
   }
